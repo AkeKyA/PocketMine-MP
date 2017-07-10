@@ -41,6 +41,7 @@ abstract class Tile extends Position{
 	const BREWING_STAND = "BrewingStand";
 	const CHEST = "Chest";
 	const ENCHANT_TABLE = "EnchantTable";
+	const ENDER_CHEST = "EnderChest";
 	const FLOWER_POT = "FlowerPot";
 	const FURNACE = "Furnace";
 	const ITEM_FRAME = "ItemFrame";
@@ -71,6 +72,7 @@ abstract class Tile extends Position{
 	public static function init(){
 		self::registerTile(Chest::class);
 		self::registerTile(EnchantTable::class);
+		self::registerTile(EnderChest::class);
 		self::registerTile(FlowerPot::class);
 		self::registerTile(Furnace::class);
 		self::registerTile(ItemFrame::class);
