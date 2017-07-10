@@ -889,9 +889,6 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 				$this->getDisplayName()
 			])
 		));
-		if(strlen(trim((string) $ev->getJoinMessage())) > 0){
-			$this->server->broadcastMessage($ev->getJoinMessage());
-		}
 
 		$this->noDamageTicks = 60;
 
@@ -1519,33 +1516,6 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 			$dz = $newPos->z - $this->z;
 
 			$this->move($dx, $dy, $dz);
-
-			$diffX = $this->x - $newPos->x;
-			$diffY = $this->y - $newPos->y;
-			$diffZ = $this->z - $newPos->z;
-
-			$diff = ($diffX ** 2 + $diffY ** 2 + $diffZ ** 2) / ($tickDiff ** 2);
-
-			if($this->isSurvival() and !$revert and $diff > 0.0625){
-				$ev = new PlayerIllegalMoveEvent($this, $newPos);
-				$ev->setCancelled($this->allowMovementCheats);
-
-				$this->server->getPluginManager()->callEvent($ev);
-
-				if(!$ev->isCancelled()){
-					$revert = true;
-					$this->server->getLogger()->warning($this->getServer()->getLanguage()->translateString("pocketmine.player.invalidMove", [$this->getName()]));
-					$this->server->getLogger()->debug("Old position: " . $this->asVector3() . ", new position: " . $this->newPosition);
-				}
-			}
-
-			if($diff > 0){
-				$this->x = $newPos->x;
-				$this->y = $newPos->y;
-				$this->z = $newPos->z;
-				$radius = $this->width / 2;
-				$this->boundingBox->setBounds($this->x - $radius, $this->y, $this->z - $radius, $this->x + $radius, $this->y + $this->height, $this->z + $radius);
-			}
 		}
 
 		$from = new Location($this->lastX, $this->lastY, $this->lastZ, $this->lastYaw, $this->lastPitch, $this->level);
@@ -3671,9 +3641,6 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 					}
 
 					$this->server->getPluginManager()->callEvent($ev = new PlayerQuitEvent($this, $message));
-					if($ev->getQuitMessage() != ""){
-						$this->server->broadcastMessage($ev->getQuitMessage());
-					}
 				}
 				$this->joined = false;
 
@@ -3928,10 +3895,6 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 				$this->inventory->setHeldItemIndex(0);
 				$this->inventory->resetHotbar(true);
 			}
-		}
-
-		if($ev->getDeathMessage() != ""){
-			$this->server->broadcast($ev->getDeathMessage(), Server::BROADCAST_CHANNEL_USERS);
 		}
 	}
 
