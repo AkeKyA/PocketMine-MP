@@ -28,6 +28,7 @@ use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\inventory\InventoryHolder;
 use pocketmine\inventory\PlayerInventory;
+use pocketmine\inventory\EnderChestInventory;
 use pocketmine\item\Item as ItemItem;
 use pocketmine\level\Level;
 use pocketmine\nbt\NBT;
@@ -72,6 +73,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 	protected $xpSeed;
 
 	protected $baseOffset = 1.62;
+	protected $enderChestInventory;
 
 	public function __construct(Level $level, CompoundTag $nbt){
 		if($this->skin === "" and (!isset($nbt->Skin) or !isset($nbt->Skin->Data) or !Player::isValidSkin($nbt->Skin->Data->getValue()))){
@@ -274,6 +276,10 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 		return $level ** 2 * 4.5 - 162.5 * $level + 2220;
 	}
 
+	public function getEnderChestInventory(){
+		return $this->enderChestInventory;
+	}
+
 	public function getInventory(){
 		return $this->inventory;
 	}
@@ -284,6 +290,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 		$this->setDataProperty(self::DATA_PLAYER_BED_POSITION, self::DATA_TYPE_POS, [0, 0, 0], false);
 
 		$this->inventory = new PlayerInventory($this);
+		$this->enderChestInventory = new EnderChestInventory($this, ($this->namedtag->EnderChestInventory ?? null));
 		if($this instanceof Player){
 			$this->addWindow($this->inventory, 0);
 		}else{
@@ -483,6 +490,16 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 			}
 
 			$this->namedtag->SelectedInventorySlot = new IntTag("SelectedInventorySlot", $this->inventory->getHeldItemIndex());
+		}
+
+		$this->namedtag->EnderChestInventory = new ListTag("EnderChestInventory", []);
+		$this->namedtag->Inventory->setTagType(NBT::TAG_Compound);
+		if($this->enderChestInventory !== null){
+			for($slot = 0; $slot < $this->enderChestInventory->getSize(); $slot++){
+				if(($item = $this->enderChestInventory->getItem($slot)) instanceof ItemItem){
+					$this->namedtag->EnderChestInventory[$slot] = $item->nbtSerialize($slot);
+				}
+			}
 		}
 
 		if(strlen($this->getSkinData()) > 0){
