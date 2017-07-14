@@ -156,4 +156,64 @@ class EntityDamageEvent extends EntityEvent implements Cancellable{
 		return $damage;
 	}
 
+	/**
+	 * @return Item $usedArmors
+	 * notice: $usedArmors $index->$cost
+	 * $index: the $index of ArmorInventory
+	 * $cost:  the num of durability cost
+	 */
+	public function getUsedArmors(){
+		return $this->usedArmors;
+	}
+
+	/**
+	 * @return Int $fireProtectL
+	 */
+	public function getFireProtectL(){
+		return $this->fireProtectL;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function useArmors(){
+		if($this->entity instanceof Player){
+			if($this->entity->isSurvival() and $this->entity->isAlive()){
+				foreach($this->usedArmors as $index => $cost){
+					$i = $this->entity->getInventory()->getArmorItem($index);
+					if($i->isArmor()){
+						$this->entity->getInventory()->damageArmor($index, $cost);
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public function createThornsDamage(){
+		if($this->thornsLevel !== []){
+			$this->thornsArmor = array_rand($this->thornsLevel);
+			$thornsL = $this->thornsLevel[$this->thornsArmor];
+			if(mt_rand(1, 100) < $thornsL * 15){
+				$this->thornsDamage = mt_rand(1, 4);
+			}
+		}
+	}
+
+	public function getThornsDamage(){
+		return $this->thornsDamage;
+	}
+
+	/**
+	 * @return bool should be used after getThornsDamage()
+	 */
+	public function setThornsArmorUse(){
+		if($this->thornsArmor === null){
+			return false;
+		}else{
+			$this->usedArmors[$this->thornsArmor] = 3;
+			return true;
+		}
+	}
 }

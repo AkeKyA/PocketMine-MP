@@ -54,22 +54,22 @@ class MainLogger extends \AttachableThreadedLogger{
 	}
 
 	/**
-	 * @return MainLogger|null
+	 * @return MainLogger
 	 */
-	public static function getLogger(){
+	public static function getLogger() : MainLogger{
 		return static::$logger;
 	}
 
 	/**
-	 * Assigns the MainLogger instance to the {@link MainLogger#logger} static property. Because static properties are
-	 * thread-local, this must be called from the body of every Thread if you want the logger to be accessible via
-	 * {@link MainLogger#getLogger}.
+	 * Assigns the MainLogger instance to the {@link MainLogger#logger} static property.
+	 *
+	 * WARNING: Because static properties are thread-local, this MUST be called from the body of every Thread if you
+	 * want the logger to be accessible via {@link MainLogger#getLogger}.
 	 */
 	public function registerStatic(){
-		if(static::$logger instanceof MainLogger){
-			throw new \RuntimeException("MainLogger has been already registered");
+		if(static::$logger === null){
+			static::$logger = $this;
 		}
-		static::$logger = $this;
 	}
 
 	public function emergency($message){
@@ -223,29 +223,5 @@ class MainLogger extends \AttachableThreadedLogger{
 
 	public function run(){
 		$this->shutdown = false;
-		$this->logResource = fopen($this->logFile, "a+b");
-		if(!is_resource($this->logResource)){
-			throw new \RuntimeException("Couldn't open log file");
-		}
-
-		while($this->shutdown === false){
-			$this->synchronized(function(){
-				while($this->logStream->count() > 0){
-					$chunk = $this->logStream->shift();
-					fwrite($this->logResource, $chunk);
-				}
-
-				$this->wait(25000);
-			});
-		}
-
-		if($this->logStream->count() > 0){
-			while($this->logStream->count() > 0){
-				$chunk = $this->logStream->shift();
-				fwrite($this->logResource, $chunk);
-			}
-		}
-
-		fclose($this->logResource);
 	}
 }

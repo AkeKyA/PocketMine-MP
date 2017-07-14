@@ -21,12 +21,26 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\item;
+namespace pocketmine\network\mcpe\protocol;
 
-class Quartz extends Item{
-	public function __construct($meta = 0, $count = 1){
-		parent::__construct(self::QUARTZ, $meta, $count, "Quartz");
+#include <rules/DataPacket.h>
+
+use pocketmine\network\mcpe\NetworkSession;
+
+class SimpleEventPacket extends DataPacket{
+	const NETWORK_ID = ProtocolInfo::SIMPLE_EVENT_PACKET;
+
+	public $unknownShort1;
+
+	public function decodePayload(){
+		$this->unknownShort1 = $this->getLShort();
 	}
 
-}
+	public function encodePayload(){
+		$this->putLShort($this->unknownShort1);
+	}
 
+	public function handle(NetworkSession $session) : bool{
+		return $session->handleSimpleEvent($this);
+	}
+}

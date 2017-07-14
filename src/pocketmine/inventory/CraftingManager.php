@@ -112,7 +112,6 @@ class CraftingManager{
 		}
 
 		$pk->encode();
-		$pk->isEncoded = true;
 
 		$this->craftingDataCache = $pk;
 		Timings::$craftingDataCacheRebuildTimer->stopTiming();
@@ -256,12 +255,12 @@ class CraftingManager{
 		}
 
 		$hasRecipe = null;
-		foreach($this->recipeLookup[$idx] as $recipe){
-			if($recipe instanceof ShapelessRecipe){
-				if($recipe->getIngredientCount() !== count($ingredients)){
+		foreach($this->recipeLookup[$idx] as $possibleRecipe){
+			if($possibleRecipe instanceof ShapelessRecipe){
+				if($possibleRecipe->getIngredientCount() !== count($ingredients)){
 					continue;
 				}
-				$checkInput = $recipe->getIngredientList();
+				$checkInput = $possibleRecipe->getIngredientList();
 				foreach($ingredients as $item){
 					$amount = $item->getCount();
 					foreach($checkInput as $k => $checkItem){
@@ -280,7 +279,7 @@ class CraftingManager{
 				}
 
 				if(count($checkInput) === 0){
-					$hasRecipe = $recipe;
+					$hasRecipe = $possibleRecipe;
 					break;
 				}
 			}

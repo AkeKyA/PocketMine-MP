@@ -61,16 +61,29 @@ class EnchantCommand extends VanillaCommand{
 
 		$enchantment = Enchantment::getEnchantment($enchantId);
 		if($enchantment->getId() === Enchantment::TYPE_INVALID){
-			$sender->sendMessage(new TranslationContainer("commands.enchant.notFound", [$enchantId]));
+			$enchantment = Enchantment::getEnchantmentByName($enchantId);
+			if($enchantment->getId() === Enchantment::TYPE_INVALID){
+				$sender->sendMessage(new TranslationContainer("commands.enchant.notFound", [$enchantId]));
+				return true;
+			}
+		}
+		$id = $enchantment->getId();
+		$maxLevel = Enchantment::getEnchantMaxLevel($id);
+		if($enchantLevel > $maxLevel or $enchantLevel <= 0){
+			$sender->sendMessage(new TranslationContainer("commands.enchant.maxLevel", [$maxLevel]));
 			return true;
 		}
-
 		$enchantment->setLevel($enchantLevel);
 
 		$item = $player->getInventory()->getItemInHand();
 
 		if($item->getId() <= 0){
 			$sender->sendMessage(new TranslationContainer("commands.enchant.noItem"));
+			return true;
+		}
+		
+		if(Enchantment::getEnchantAbility($item) === 0){
+			$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.enchant.cantEnchant"));
 			return true;
 		}
 

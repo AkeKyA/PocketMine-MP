@@ -21,11 +21,18 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\event\block;
+namespace pocketmine\network\mcpe\protocol\types;
 
-use pocketmine\block\Block;
+interface ContainerIds{
 
-class BlockFormEvent extends BlockGrowEvent{
-	public static $handlerList = null;
+	const NONE = -1;
+	const INVENTORY = 0;
+	const FIRST = 1;
+	const LAST = 100;
+	const OFFHAND = 119;
+	const ARMOR = 120;
+	const CREATIVE = 121;
+	const HOTBAR = 122;
+	const FIXED_INVENTORY = 123;
 
 }
