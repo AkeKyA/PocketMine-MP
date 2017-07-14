@@ -264,6 +264,11 @@ class Level implements ChunkManager, Metadatable{
 
 	private $closed = false;
 
+	public $can_touch = [
+	    146 => 146,
+	    130 => 130
+	];
+
 	public static function chunkHash(int $x, int $z){
 		return (($x & 0xFFFFFFFF) << 32) | ($z & 0xFFFFFFFF);
 	}
@@ -1728,8 +1733,10 @@ class Level implements ChunkManager, Metadatable{
 			if(!$player->hasPermission("pocketmine.spawnprotect.bypass") and ($distance = $this->server->getSpawnRadius()) > -1){
 				$t = new Vector2($target->x, $target->z);
 				$s = new Vector2($this->getSpawnLocation()->x, $this->getSpawnLocation()->z);
-				if(count($this->server->getOps()->getAll()) > 0 and $t->distance($s) <= $distance){ //set it to cancelled so plugins can bypass this
-					$ev->setCancelled();
+				if(!isset($this->can_touch[$target->getId()])){
+					if(count($this->server->getOps()->getAll()) > 0 and $t->distance($s) <= $distance){ //set it to cancelled so plugins can bypass this
+						$ev->setCancelled();
+					}
 				}
 			}
 
