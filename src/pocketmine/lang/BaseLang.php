@@ -37,7 +37,7 @@ class BaseLang{
 		}
 
 		if(is_dir($path)){
-			$allFiles = scandir($path);
+			$allFiles = scandir($path, SCANDIR_SORT_NONE);
 
 			if($allFiles !== false){
 				$files = array_filter($allFiles, function($filename){
@@ -120,7 +120,7 @@ class BaseLang{
 	public function translate(TextContainer $c){
 		if($c instanceof TranslationContainer){
 			$baseText = $this->internalGet($c->getText());
-			$baseText = $this->parseTranslation($baseText !== null ? $baseText : $c->getText());
+			$baseText = $this->parseTranslation($baseText ?? $c->getText());
 
 			foreach($c->getParameters() as $i => $p){
 				$baseText = str_replace("{%$i}", $this->parseTranslation($p), $baseText);

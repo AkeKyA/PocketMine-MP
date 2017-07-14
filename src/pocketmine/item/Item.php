@@ -49,7 +49,7 @@ class Item implements ItemIds, \JsonSerializable{
 	private static $cachedParser = null;
 
 	private static function parseCompoundTag(string $tag) : CompoundTag{
-		if(strlen($tag) === 0){
+		if($tag === ""){
 			throw new \InvalidArgumentException("No NBT data found in supplied string");
 		}
 
@@ -224,8 +224,7 @@ class Item implements ItemIds, \JsonSerializable{
 			self::$list[self::MOB_HEAD] = MobHead::class;
 			self::$list[self::PUMPKIN_PIE] = PumpkinPie::class;
 			self::$list[self::NETHER_BRICK] = NetherBrick::class;
-			self::$list[self::QUARTZ] = Quartz::class;
-			self::$list[self::QUARTZ] = NetherQuartz::class;
+			self::$list[self::NETHER_QUARTZ] = NetherQuartz::class;
 			self::$list[self::COOKED_RABBIT] = CookedRabbit::class;
 			// self::$list[self::CAMERA] = Camera::class;
 			self::$list[self::BEETROOT] = Beetroot::class;
@@ -444,7 +443,7 @@ class Item implements ItemIds, \JsonSerializable{
 		$tag = $this->getNamedTag();
 
 		if(isset($tag->BlockEntityTag) and $tag->BlockEntityTag instanceof CompoundTag){
-			unset($tag->display->BlockEntityTag);
+			unset($tag->BlockEntityTag);
 			$this->setNamedTag($tag);
 		}
 
@@ -526,6 +525,50 @@ class Item implements ItemIds, \JsonSerializable{
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param int  $id
+	 * @param int  $level
+	 * @param bool $compareLevel
+	 * @return bool
+	 */
+	public function hasEnchantment(int $id, int $level = 1, bool $compareLevel = false) : bool{
+		if($this->hasEnchantments()){
+			foreach($this->getEnchantments() as $enchantment){
+				if($enchantment->getId() == $id){
+					if($compareLevel){
+						if($enchantment->getLevel() == $level){
+							return true;
+						}
+					}else{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @param $id
+	 * @return Int level|0(for null)
+	 */
+	public function getEnchantmentLevel(int $id){
+		if(!$this->hasEnchantments()){
+			return 0;
+		}
+
+		foreach($this->getNamedTag()->ench as $entry){
+			if($entry["id"] === $id){
+				$e = Enchantment::getEnchantment($entry["id"]);
+				$e->setLevel($entry["lvl"]);
+				$E_level = $e->getLevel() > Enchantment::getEnchantMaxLevel($id) ? Enchantment::getEnchantMaxLevel($id) : $e->getLevel();
+				return $E_level;
+			}
+		}
+
+		return 0;
 	}
 
 	/**
