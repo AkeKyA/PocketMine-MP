@@ -1647,10 +1647,6 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 							if(!$this->hasEffect(Effect::JUMP) and $diff > 0.6 and $expectedVelocity < $this->speed->y and !$this->server->getAllowFlight()){
 								if($this->inAirTicks < 100){
 									$this->setMotion(new Vector3(0, $expectedVelocity, 0));
-								}elseif($this->kick("Flying is not enabled on this server")){
-									$this->timings->stopTiming();
-
-									return false;
 								}
 							}
 						}
