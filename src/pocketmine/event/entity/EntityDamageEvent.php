@@ -233,6 +233,30 @@ class EntityDamageEvent extends EntityEvent implements Cancellable{
 	/**
 	 * @param int $type
 	 *
+	 * @return float 1 - the percentage
+	 */
+	public function getRateDamage($type = self::MODIFIER_BASE){
+		if(isset($this->rateModifiers[$type])){
+			return $this->rateModifiers[$type];
+		}
+		return 1;
+	}
+
+	/**
+	 * @param float $damage
+	 * @param int   $type
+	 *
+	 * Notice:If you want to add/reduce the damage without reducing by Armor or effect. set a new Damage using setDamage
+	 * Notice:If you want to add/reduce the damage within reducing by Armor of effect. Plz change the MODIFIER_BASE
+	 * Notice:If you want to add/reduce the damage by multiplying. Plz use this function.
+	 */
+	public function setRateDamage($damage, $type = self::MODIFIER_BASE){
+		$this->rateModifiers[$type] = $damage;
+	}
+
+	/**
+	 * @param int $type
+	 *
 	 * @return bool
 	 */
 	public function isApplicable($type){
